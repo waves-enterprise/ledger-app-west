@@ -21,32 +21,30 @@ endif
 
 include $(BOLOS_SDK)/Makefile.defines
 
+APPNAME      = "Waves Enterprise"
+APPVERSION_M = 1
+APPVERSION_N = 0
+APPVERSION_P = 3
+APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
+
 APP_LOAD_PARAMS  = --curve secp256k1 --curve ed25519
 ifeq ($(TARGET_NAME), TARGET_NANOX)
 APP_LOAD_PARAMS=--appFlags 0x200  # APPLICATION_FLAG_BOLOS_SETTINGS
 else
 APP_LOAD_PARAMS=--appFlags 0x000
 endif
-
-APP_LOAD_PARAMS += --path "44'/1'"
+APP_LOAD_PARAMS += --path "44'/5741565'"
 APP_LOAD_PARAMS += $(COMMON_LOAD_PARAMS)
 
-APPNAME      = "Waves Enterprise"
-APPVERSION_M = 1
-APPVERSION_N = 0
-APPVERSION_P = 1
-APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
-
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-    ICONNAME=icons/nanox_app_we.gif
+    ICONNAME=icons/nanox_app_west.gif
 else
-    ICONNAME=icons/nanos_app_we.gif
+    ICONNAME=icons/nanos_app_west.gif
 endif
 
 all: default
 
 DEFINES += $(DEFINES_LIB)
-DEFINES += APPNAME=\"$(APPNAME)\"
 DEFINES += APPVERSION=\"$(APPVERSION)\"
 DEFINES += MAJOR_VERSION=$(APPVERSION_M) MINOR_VERSION=$(APPVERSION_N) PATCH_VERSION=$(APPVERSION_P)
 DEFINES += OS_IO_SEPROXYHAL

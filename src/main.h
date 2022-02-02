@@ -1,8 +1,9 @@
 /*******************************************************************************
- *   Waves Platform Wallet App for Nano Ledger devices
- *   Copyright (c) 2017-2020 Sergey Tolmachev (Tolsi) <tolsi.ru@gmail.com>
+ *   Waves Enterprise Wallet App for Nano Ledger devices
+ *   Copyright (c) 2022 Waves Enterprise
  *
- *   Based on Sample code provided (c) 2016 Ledger and
+ *   Based on Waves Platform Wallet App
+ *        and Sample code provided (c) 2016 Ledger and
  *                                 (c) 2017-2018 Jake B. (Burstcoin app)
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
@@ -26,98 +27,102 @@
 #include "stream_eddsa_sign.h"
 #include <stdbool.h>
 
-// Host innteration communication protocol
-#define CLA 0x80                       // CLASS?
-#define INS_SIGN 0x02                  // Sign Instruction
-#define INS_GET_PUBLIC_KEY 0x04        // Get Public Key Instruction
-#define INS_GET_APP_CONFIGURATION 0x06 // Get App Version
-#define P1_CONFIRM 0x01                // Show address confirmation
-#define P1_NON_CONFIRM 0x00            // Don't show address confirmation
-#define P1_LAST 0x80 // Parameter 1 = End of Bytes to Sign (finalize)
-#define P1_MORE 0x00 // Parameter 1 = More bytes coming
+// Host integration communication protocol
+#define CLA                 0x80  // CLASS?
+#define INS_SIGN            0x02  // Sign Instruction
+#define INS_GET_PUBLIC_KEY  0x04  // Get Public Key Instruction
+#define INS_GET_APP_VERSION 0x06  // Get App Version
+#define INS_GET_APP_NAME    0x08  // Get App Name
+#define P1_CONFIRM          0x01  // Show address confirmation
+#define P1_NON_CONFIRM      0x00  // Don't show address confirmation
+#define P1_LAST             0x80  // Parameter 1 = End of Bytes to Sign (finalize)
+#define P1_MORE             0x00  // Parameter 1 = More bytes coming
 
-#define SW_OK 0x9000
-#define SW_USER_CANCELLED 0x9100
-#define SW_DEPRECATED_SIGN_PROTOCOL 0x9102
-#define SW_DEVICE_IS_LOCKED 0x6986
-#define SW_CONDITIONS_NOT_SATISFIED 0x6985
-#define SW_BUFFER_OVERFLOW 0x6990
-#define SW_INCORRECT_P1_P2 0x6A86
-#define SW_INS_NOT_SUPPORTED 0x6D00
-#define SW_CLA_NOT_SUPPORTED 0x6E00
+#define SW_OK                            0x9000
+#define SW_CONDITIONS_NOT_SATISFIED      0x6985
+#define SW_DEVICE_IS_LOCKED              0x6986
+#define SW_INCORRECT_P1_P2               0x6A86
+#define SW_WRONG_DATA_LENGTH             0x6A87
+#define SW_INS_NOT_SUPPORTED             0x6D00
+#define SW_CLA_NOT_SUPPORTED             0x6E00
 #define SW_SECURITY_STATUS_NOT_SATISFIED 0x6982
+#define SW_USER_CANCELLED                0x9100
+#define SW_DEPRECATED_SIGN_PROTOCOL      0xB000
 
-#define COLOR_BG_1 0xF9F9F9
-#define COLOR_APP 0x0055FF
+#define COLOR_BG_1      0xF9F9F9
+#define COLOR_APP       0x0055FF
 #define COLOR_APP_LIGHT 0x87dee6
 
+#define APPNAME        "Waves Enterprise"
+#define APPNAME_LEN    (sizeof(APPNAME) - 1)
+#define APPVERSION_LEN (sizeof(APPVERSION) - 1)
+
 typedef struct internal_storage_t {
-  uint8_t fido_transport;
-  uint8_t initialized;
+    uint8_t fido_transport;
+    uint8_t initialized;
 } internal_storage_t;
 
 extern internal_storage_t const N_storage_real;
-#define N_storage (*(volatile internal_storage_t *)PIC(&N_storage_real))
+#define N_storage (*(volatile internal_storage_t *) PIC(&N_storage_real))
 
 // A place to store information about the transaction
 // for displaying to the user when requesting approval
 // 44 for address/id and +1 for \0
 typedef struct uiContext_t {
-  unsigned char line1[45];
-  unsigned char line2[45];
-  unsigned char line3[45];
-  unsigned char line4[45];
-  unsigned char line5[45];
-  unsigned char line6[45];
-  unsigned char line7[45];
-  unsigned char line8[45];
-  unsigned char id[32];
-  unsigned char buffer[150];
-  unsigned char tmp[50];
-  uint8_t step;
-  uint8_t wait_in_buffer;
-  uint8_t buffer_used;
-  uint32_t chunk_used;
-  uint16_t alias_size;
-  uint16_t attachment_size;
-  bool finished;
+    unsigned char line1[45];
+    unsigned char line2[45];
+    unsigned char line3[45];
+    unsigned char line4[45];
+    unsigned char line5[45];
+    unsigned char line6[45];
+    unsigned char line7[45];
+    unsigned char line8[45];
+    unsigned char id[32];
+    unsigned char buffer[150];
+    unsigned char tmp[50];
+    uint8_t step;
+    uint8_t wait_in_buffer;
+    uint8_t buffer_used;
+    uint32_t chunk_used;
+    uint16_t alias_size;
+    uint16_t attachment_size;
+    bool finished;
 } uiContext_t;
 
 // A place to store data during the signing
 typedef struct signingContext_t {
-  uint32_t bip32[5];
-  unsigned char sign_bit;
-  unsigned char amount_decimals;
-  unsigned char fee_decimals;
-  unsigned char data_type;
-  unsigned char data_version;
-  unsigned char network_byte;
-  uint32_t data_size;
-  uint32_t data_read;
-  uint32_t chunk_used;
-  uint32_t chunk;
-  uint8_t step;
-  uint8_t sign_from;
-  streamEddsaContext_t eddsa_context;
+    uint32_t bip32[5];
+    unsigned char sign_bit;
+    unsigned char amount_decimals;
+    unsigned char fee_decimals;
+    unsigned char data_type;
+    unsigned char data_version;
+    unsigned char network_byte;
+    uint32_t data_size;
+    uint32_t data_read;
+    uint32_t chunk_used;
+    uint32_t chunk;
+    uint8_t step;
+    uint8_t sign_from;
+    streamEddsaContext_t eddsa_context;
 } signingContext_t;
 
 // A place to store data during the confirming the address
 typedef struct addressesContext_t {
-  unsigned char address[36];
-  unsigned char public_key[32];
+    unsigned char address[36];
+    unsigned char public_key[32];
 } addressesContext_t;
 
 typedef union {
-  signingContext_t signing_context;
-  addressesContext_t address_context;
+    signingContext_t signing_context;
+    addressesContext_t address_context;
 } tmpContext_t;
 
 extern uiContext_t ui_context;
 
-extern tmpContext_t tmp_ctx; // Temporary area to store stuff
+extern tmpContext_t tmp_ctx;  // Temporary area to store stuff
 
-bool get_curve25519_public_key_for_path(const uint32_t *path,
-                                        cx_ecfp_public_key_t *public_key);
+bool get_curve25519_public_key_for_path(const uint32_t *path, cx_ecfp_public_key_t *public_key);
 
 void init_context();
 uint32_t set_result_get_address();

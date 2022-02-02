@@ -22,23 +22,23 @@ void fe25519_invert(fe25519 out, const fe25519 z);
  */
 
 typedef struct {
-  fe25519 X;
-  fe25519 Y;
-  fe25519 Z;
+    fe25519 X;
+    fe25519 Y;
+    fe25519 Z;
 } ge25519_p2;
 
 typedef struct {
-  fe25519 X;
-  fe25519 Y;
-  fe25519 Z;
-  fe25519 T;
+    fe25519 X;
+    fe25519 Y;
+    fe25519 Z;
+    fe25519 T;
 } ge25519_p3;
 
 typedef struct {
-  fe25519 X;
-  fe25519 Y;
-  fe25519 Z;
-  fe25519 T;
+    fe25519 X;
+    fe25519 Y;
+    fe25519 Z;
+    fe25519 T;
 } ge25519_p1p1;
 
 int ge25519_has_small_order(const unsigned char s[32]);

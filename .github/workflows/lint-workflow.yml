@@ -1,0 +1,27 @@
+name: Code style check
+
+on: [push, pull_request]
+
+jobs:
+  job_lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Lint
+        uses: DoozyX/clang-format-lint-action@v0.13
+        with:
+          source: './src'
+          extensions: 'h,c'
+          clangFormatVersion: 13
+          inplace: True
+      - uses: EndBug/add-and-commit@v4
+        with:
+          author_name: Clang Robot
+          author_email: robot@example.com
+          message: 'Committing clang-format changes'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

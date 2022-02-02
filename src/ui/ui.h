@@ -1,9 +1,11 @@
 /*******************************************************************************
- *   Waves Platform Wallet App for Nano Ledger devices
- *   Copyright (c) 2017-2020 Sergey Tolmachev (Tolsi) <tolsi.ru@gmail.com>
+ *   Waves Enterprise Wallet App for Nano Ledger devices
+ *   Copyright (c) 2022 Waves Enterprise
  *
- *   Based on Sample code provided (c) 2016 Ledger and
+ *   Based on Waves Platform Wallet App
+ *        and Sample code provided (c) 2016 Ledger and
  *                                 (c) 2017-2018 Jake B. (Burstcoin app)
+ *
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -36,7 +38,7 @@ extern bolos_ux_params_t G_ux_params;
 enum UI_STATE { UI_IDLE, UI_VERIFY };
 extern enum UI_STATE ui_state;
 
-static const unsigned char WAVES_CONST[] = "WEST";
+static const unsigned char WEST_CONST[] = "WEST";
 
 void menu_sign_init();
 void ui_idle();
@@ -49,13 +51,12 @@ void show_sign_ui();
 void menu_address_init();
 void show_processing();
 
-void try_to_fill_buffer(uint8_t chunk_data_start_index,
-                        uint8_t chunk_data_size);
+void try_to_fill_buffer(uint8_t chunk_data_start_index, uint8_t chunk_data_size);
 
 #define MAX_CHARS_PER_LINE 49
-#define DEFAULT_FONT BAGL_FONT_OPEN_SANS_LIGHT_16px | BAGL_FONT_ALIGNMENT_LEFT
-#define TEXT_HEIGHT 15
-#define TEXT_SPACE 4
+#define DEFAULT_FONT       BAGL_FONT_OPEN_SANS_LIGHT_16px | BAGL_FONT_ALIGNMENT_LEFT
+#define TEXT_HEIGHT        15
+#define TEXT_SPACE         4
 
 #define COLOR_WAVES 0x0055FF
 #define COLOR_WHITE 0xF9F9F9

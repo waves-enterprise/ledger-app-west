@@ -1,9 +1,11 @@
 /*******************************************************************************
- *   Waves Platform Wallet App for Nano Ledger devices
- *   Copyright (c) 2017-2020 Sergey Tolmachev (Tolsi) <tolsi.ru@gmail.com>
+ *   Waves Enterprise Wallet App for Nano Ledger devices
+ *   Copyright (c) 2022 Waves Enterprise
  *
- *   Based on Sample code provided (c) 2016 Ledger and
+ *   Based on Waves Platform Wallet App
+ *        and Sample code provided (c) 2016 Ledger and
  *                                 (c) 2017-2018 Jake B. (Burstcoin app)
+ *
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -23,13 +25,13 @@
 #include "../ui.h"
 
 const bagl_element_t *ui_address_blue_prepro(const bagl_element_t *element) {
-  return element;
+    return element;
 }
 
 const bagl_element_t *ui_idle_blue_prepro(const bagl_element_t *element) {
-  return element;
+    return element;
 }
 
 const bagl_element_t *ui_approval_blue_prepro(const bagl_element_t *element) {
-  return element;
+    return element;
 }
