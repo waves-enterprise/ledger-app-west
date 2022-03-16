@@ -1,0 +1,20 @@
+{
+  "name": "tests",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest src --verbose --runInBand --detectOpenHandles"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/preset-env": "^7.16.11",
+    "@types/jest": "^27.4.1",
+    "babel-jest": "^27.5.1"
+  },
+  "dependencies": {
+    "@ledgerhq/hw-transport-node-speculos": "^6.24.1",
+    "@wavesenterprise/js-sdk": "^3.4.7",
+    "@wavesenterprise/west-ledger": "0.3.0"
+  }
+}
