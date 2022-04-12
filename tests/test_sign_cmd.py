@@ -54,13 +54,14 @@ def transfer_bytes(
     return cdata
 
 
-def test_sign_tx(cmd, button):
+def test_sign_tx(cmd, button, model):
     bip32_path: str = "44'/5741565'/0'/0'/1'"
 
     public_key, address = cmd.get_public_key(
         bip32_path=bip32_path,
         network_byte='V',
-        display=False
+        display=False,
+        model=model
     )  # type: bytes, bytes
 
     tx_bytes = transfer_bytes(public_key=public_key, address=address, amount=100000000)
@@ -82,7 +83,8 @@ def test_sign_tx(cmd, button):
         bip32_path=bip32_path,
         network_byte='V',
         tx_bytes=binary_data,
-        button=button
+        button=button,
+        model=model
     )
 
     # valid
