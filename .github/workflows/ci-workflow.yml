@@ -3,8 +3,8 @@ name: Compilation & tests
 on: [push, pull_request]
 
 jobs:
-  job_build:
-    name: Build
+  job_build_nano_S:
+    name: Build NanoS
     runs-on: ubuntu-latest
 
     container:
@@ -16,17 +16,42 @@ jobs:
 
       - name: Build
         run: |
-          make
+          make 
+          cp bin/app.elf west_nanos.elf
 
       - name: Upload app binary
         uses: actions/upload-artifact@v2
         with:
           name: app-west
-          path: bin
+          path: ./west_nanos.elf
+          if-no-files-found: error
+
+  job_build_nano_X:
+    name: Build NanoX
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          make BOLOS_SDK=$NANOX_SDK
+          cp bin/app.elf west_nanox.elf
+
+      - name: Upload app binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-west
+          path: ./west_nanox.elf
+          if-no-files-found: error
 
   job_scan_build:
     name: Clang Static Analyzer
-    needs: job_build
+    needs: job_build_nano_S
     runs-on: ubuntu-latest
 
     container:
@@ -94,9 +119,9 @@ jobs:
 #          name: documentation
 #          path: doc/html
 
-  job_test:
-    name: Test
-    needs: job_build
+  job_test_nano_S:
+    name: Test for Nano S
+    needs: job_build_nano_S
     runs-on: ubuntu-latest
 
     container:
@@ -123,11 +148,53 @@ jobs:
       - name: Run test
         run: |
           apt update && apt install -qy gcc  # /!\ workaround for pysha3
-          nohup bash -c "python /speculos/speculos.py bin/app.elf --apdu-port 9999 --button-port 9998 --display headless" > speculos.log 2<&1 &
+          nohup bash -c "python /speculos/speculos.py bin/west_nanos.elf --apdu-port 9999 --button-port 9998 --display headless" > speculos_nanos.log 2<&1 &
           cd tests && pip install -r requirements.txt && pytest --headless
 
       - name: Upload Speculos log
         uses: actions/upload-artifact@v2
         with:
           name: speculos-log
-          path: speculos.log
+          path: "speculos_*.log"
+
+
+  job_test_nano_X:
+    name: Test for Nano X
+    needs: job_build_nano_X
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/ledgerhq/speculos:latest
+      ports:
+        - 1234:1234
+        - 9998:9998
+        - 9999:9999
+        - 40000:40000
+        - 41000:41000
+        - 43000:43000
+      options: --entrypoint /bin/bash
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Download app binary
+        uses: actions/download-artifact@v2
+        with:
+          name: app-west
+          path: bin
+
+      - name: Run test
+        run: |
+          apt update && apt install -qy gcc  # /!\ workaround for pysha3
+          nohup bash -c "python /speculos/speculos.py bin/west_nanox.elf --apdu-port 9999 --button-port 9998 --display headless -m nanox" > speculos_nanox.log 2<&1 &
+          cd tests && pip install -r requirements.txt && pytest --headless --model nanox
+
+      - name: Upload Speculos log
+        uses: actions/upload-artifact@v2
+        with:
+          name: speculos-log
+          path: "speculos_*.log"
+
+
+

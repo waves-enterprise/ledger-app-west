@@ -43,7 +43,7 @@ class AppCommand:
 
         return response.decode("ascii")
 
-    def get_public_key(self, bip32_path: str, button: Button = None, network_byte: str = b'V', display: bool = False) -> Tuple[
+    def get_public_key(self, bip32_path: str, model: str, button: Button = None, network_byte: str = b'V', display: bool = False) -> Tuple[
         bytes, bytes]:
         self.transport.send_raw(
             self.builder.get_public_key(bip32_path=bip32_path, network_byte=network_byte, display=display)
@@ -53,9 +53,11 @@ class AppCommand:
             # Verify address
             button.right_click()
 
-            # Address 1/2, 2/2
+            # Address, 1/1 for Nano X, 1/2 for Nano S
             button.right_click()
-            button.right_click()
+            if model == "nanos":
+                # 2/2 for Nano S
+                button.right_click()
 
             # Approve
             button.both_click()
@@ -70,7 +72,7 @@ class AppCommand:
 
         return pub_key, address
 
-    def sign_tx(self, bip32_path: str, network_byte: str, tx_bytes: bytes, button: Button) -> Tuple[int, bytes]:
+    def sign_tx(self, bip32_path: str, network_byte: str, tx_bytes: bytes, button: Button, model: str) -> Tuple[int, bytes]:
         sw: int = 0
         response: bytes = b""
 
@@ -87,9 +89,11 @@ class AppCommand:
                 # Asset
                 button.right_click()
 
-                # To 1/2, 2/2
+                # To address, 1/1 for Nano X, 1/2 for Nano S
                 button.right_click()
-                button.right_click()
+                if model == "nanos":
+                    # 2/2 for Nano S
+                    button.right_click()
 
                 # Fee
                 button.right_click()
@@ -97,14 +101,18 @@ class AppCommand:
                 # Fee asset
                 button.right_click()
 
-                # From 1/2, 2/2
+                # From address, 1/1 for Nano X, 1/2 for Nano S
                 button.right_click()
-                button.right_click()
+                if model == "nanos":
+                    # 2/2 for Nano S
+                    button.right_click()
 
-                # Transaction id 1/3, 2/3, 3/3
+                # From address, 1/1 for Nano X, 1/3 for Nano S
                 button.right_click()
-                button.right_click()
-                button.right_click()
+                if model == "nanos":
+                    # 2/3 and 3/3 for Nano S
+                    button.right_click()
+                    button.right_click()
 
                 # Approve
                 button.both_click()

@@ -3,7 +3,6 @@ import pytest
 from app_client.exception import *
 
 
-@pytest.mark.xfail(raises=ClaNotSupportedError)
 def test_bad_cla(cmd):
     sw, _ = cmd.transport.exchange(cla=0xa0,  # 0xa0 instead of 0x80
                                    ins=0x06,
@@ -11,10 +10,9 @@ def test_bad_cla(cmd):
                                    p2=0x00,
                                    cdata=b"")
 
-    raise DeviceException(error_code=sw)
+    assert isinstance(DeviceException(error_code=sw), ClaNotSupportedError)
 
 
-@pytest.mark.xfail(raises=InsNotSupportedError)
 def test_bad_ins(cmd):
     sw, _ = cmd.transport.exchange(cla=0x80,
                                    ins=0xff,  # bad INS
@@ -22,10 +20,9 @@ def test_bad_ins(cmd):
                                    p2=0x00,
                                    cdata=b"")
 
-    raise DeviceException(error_code=sw)
+    assert isinstance(DeviceException(error_code=sw), InsNotSupportedError)
 
 
-@pytest.mark.xfail(raises=WrongP1P2Error)
 def test_wrong_p1p2(cmd):
     sw, _ = cmd.transport.exchange(cla=0x80,
                                    ins=0x02,
@@ -33,12 +30,11 @@ def test_wrong_p1p2(cmd):
                                    p2=0x00,
                                    cdata=b"")
 
-    raise DeviceException(error_code=sw)
+    assert isinstance(DeviceException(error_code=sw), WrongP1P2Error)
 
 
-@pytest.mark.xfail(raises=WrongDataLengthError)
 def test_wrong_data_length(cmd):
     # APDUs must be at least 5 bytes: CLA, INS, P1, P2, Lc.
     sw, _ = cmd.transport.exchange_raw("8002")
 
-    raise DeviceException(error_code=sw)
+    assert isinstance(DeviceException(error_code=sw), WrongDataLengthError)
