@@ -24,7 +24,7 @@ include $(BOLOS_SDK)/Makefile.defines
 APPNAME      = "Waves Enterprise"
 APPVERSION_M = 1
 APPVERSION_N = 0
-APPVERSION_P = 3
+APPVERSION_P = 4
 APPVERSION   = "$(APPVERSION_M).$(APPVERSION_N).$(APPVERSION_P)"
 
 APP_LOAD_PARAMS  = --curve secp256k1 --curve ed25519
@@ -58,7 +58,8 @@ DEFINES += UNUSED\(x\)=\(void\)x
 DEFINES += LEDGER_MAJOR_VERSION=$(APPVERSION_M) LEDGER_MINOR_VERSION=$(APPVERSION_N) LEDGER_PATCH_VERSION=$(APPVERSION_P)
 
 ifeq ($(TARGET_NAME),TARGET_NANOX)
-	DEFINES += HAVE_BLE HAVE_BLE_APDU BLE_COMMAND_TIMEOUT_MS=2000
+	DEFINES += HAVE_BLE BLE_COMMAND_TIMEOUT_MS=2000
+	DEFINES += HAVE_BLE_APDU
     SDK_SOURCE_PATH += lib_blewbxx lib_blewbxx_impl
 endif
 
@@ -77,10 +78,10 @@ endif
 DEBUG = 0
 ifneq ($(DEBUG),0)
     DEFINES += HAVE_PRINTF
-    ifeq ($(TARGET_NAME),TARGET_NANOX)
-        DEFINES += PRINTF=mcu_usb_printf
-    else
+    ifeq ($(TARGET_NAME),TARGET_NANOS)
         DEFINES += PRINTF=screen_printf
+    else
+        DEFINES += PRINTF=mcu_usb_printf
     endif
 else
         DEFINES += PRINTF\(...\)=
