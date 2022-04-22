@@ -210,8 +210,8 @@ jobs:
       - name: Run test
         run: |
           apt update && apt install -qy gcc  # /!\ workaround for pysha3
-          nohup bash -c "python /speculos/speculos.py bin/west_nanosp.elf --apdu-port 9999 --button-port 9998 --display headless" > speculos_nanosp.log 2<&1 &
-          cd tests && pip install -r requirements.txt && pytest --headless
+          nohup bash -c "python /speculos/speculos.py bin/west_nanosp.elf --apdu-port 9999 --button-port 9998 --display headless -m nanosp" > speculos_nanosp.log 2<&1 &
+          cd tests && pip install -r requirements.txt && pytest --headless --model nanosp
 
       - name: Upload Speculos log
         uses: actions/upload-artifact@v2
