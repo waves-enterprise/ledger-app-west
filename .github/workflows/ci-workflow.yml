@@ -171,14 +171,14 @@ jobs:
       - name: Run test
         run: |
           apt update && apt install -qy gcc  # /!\ workaround for pysha3
-          nohup bash -c "python /speculos/speculos.py bin/west_nanos.elf --apdu-port 9999 --button-port 9998 --display headless" > speculos_nanos.log 2<&1 &
+          nohup bash -c "python /speculos/speculos.py bin/west_nanos.elf --apdu-port 9999 --button-port 9998 --display headless" &
           cd tests && pip install -r requirements.txt && pytest --headless
 
-      - name: Upload Speculos log
-        uses: actions/upload-artifact@v2
-        with:
-          name: speculos-log
-          path: "speculos_*.log"
+#      - name: Upload Speculos log
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: speculos-log
+#          path: "speculos_*.log"
 
 
   job_test_nano_SP:
