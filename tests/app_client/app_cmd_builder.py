@@ -5,7 +5,7 @@ from typing import Tuple, Union, Iterator, cast
 
 from app_client.utils import expand_path, path_to_bytes
 
-MAX_APDU_LEN: int = 255
+MAX_APDU_LEN: int = 128
 
 
 def chunkify(data: bytes, chunk_len: int) -> Iterator[Tuple[bool, bytes]]:
