@@ -1,6 +1,15 @@
 name: Compilation & tests
 
-on: [push, pull_request]
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+      - master
+  pull_request:
+    branches:
+      - develop
+      - master
 
 jobs:
   job_build_nano_S:
@@ -16,7 +25,7 @@ jobs:
 
       - name: Build
         run: |
-          make 
+          make
           cp bin/app.elf west_nanos.elf
 
       - name: Upload app binary
@@ -39,7 +48,7 @@ jobs:
 
       - name: Build
         run: |
-          make BOLOS_SDK=$NANOSP_SDK 
+          make BOLOS_SDK=$NANOSP_SDK
           cp bin/app.elf west_nanosp.elf
 
       - name: Upload app binary
@@ -74,15 +83,11 @@ jobs:
 
   job_scan_build:
     name: Clang Static Analyzer
-    needs: job_build_nano_S
     runs-on: ubuntu-latest
-
     container:
       image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
-
     steps:
       - uses: actions/checkout@v2
-
       - name: Build with Clang Static Analyzer
         run: |
           make clean
@@ -257,6 +262,3 @@ jobs:
         with:
           name: speculos-log
           path: "speculos_*.log"
-
-
-
