@@ -26,6 +26,29 @@ jobs:
           path: ./west_nanos.elf
           if-no-files-found: error
 
+  job_build_nano_SP:
+    name: Build NanoSP
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/ledgerhq/ledger-app-builder/ledger-app-builder:latest
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Build
+        run: |
+          make BOLOS_SDK=$NANOSP_SDK 
+          cp bin/app.elf west_nanosp.elf
+
+      - name: Upload app binary
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-west
+          path: ./west_nanosp.elf
+          if-no-files-found: error
+
   job_build_nano_X:
     name: Build NanoX
     runs-on: ubuntu-latest
@@ -148,8 +171,47 @@ jobs:
       - name: Run test
         run: |
           apt update && apt install -qy gcc  # /!\ workaround for pysha3
-          nohup bash -c "python /speculos/speculos.py bin/west_nanos.elf --apdu-port 9999 --button-port 9998 --display headless" > speculos_nanos.log 2<&1 &
+          nohup bash -c "python /speculos/speculos.py bin/west_nanos.elf --apdu-port 9999 --button-port 9998 --display headless" &
           cd tests && pip install -r requirements.txt && pytest --headless
+
+#      - name: Upload Speculos log
+#        uses: actions/upload-artifact@v2
+#        with:
+#          name: speculos-log
+#          path: "speculos_*.log"
+
+
+  job_test_nano_SP:
+    name: Test for Nano S+
+    needs: job_build_nano_SP
+    runs-on: ubuntu-latest
+
+    container:
+      image: ghcr.io/ledgerhq/speculos:latest
+      ports:
+        - 1234:1234
+        - 9998:9998
+        - 9999:9999
+        - 40000:40000
+        - 41000:41000
+        - 43000:43000
+      options: --entrypoint /bin/bash
+
+    steps:
+      - name: Clone
+        uses: actions/checkout@v2
+
+      - name: Download app binary
+        uses: actions/download-artifact@v2
+        with:
+          name: app-west
+          path: bin
+
+      - name: Run test
+        run: |
+          apt update && apt install -qy gcc  # /!\ workaround for pysha3
+          nohup bash -c "python /speculos/speculos.py bin/west_nanosp.elf --apdu-port 9999 --button-port 9998 --display headless -m nanosp" > speculos_nanosp.log 2<&1 &
+          cd tests && pip install -r requirements.txt && pytest --headless --model nanosp
 
       - name: Upload Speculos log
         uses: actions/upload-artifact@v2
